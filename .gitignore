@@ -7,4 +7,6 @@ dist/
 .env.development.local
 .env.production.local
 .vs/
+.env
+.env.local
 EOF.DS_Store
