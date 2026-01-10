@@ -59,21 +59,15 @@ const ChatBotApp = ({ onGoBack, chats, setChats, activeChat, setActiveChat, onNe
       localStorage.setItem('chats', JSON.stringify(updatedChats))
       setIsTyping(true)
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization:`Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [{ role: 'user', content: inputValue }],
-          max_tokens: 500,
-        }),
-      })
+      const response = await fetch("/api/openai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: inputValue }),
+      });
 
-      const data = await response.json()
-      const chatResponse = data.choices[0].message.content.trim()
+      const data = await response.json();
+      const chatResponse = data.choices[0].message.content.trim();
+
 
       const newResponse = {
         type: 'response',
