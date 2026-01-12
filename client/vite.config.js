@@ -5,7 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://127.0.0.1:5178", // proxy /api calls to Express
+      "/api": {
+        target: "http://localhost:5178",
+        changeOrigin: true,
+      },
     },
   },
 });

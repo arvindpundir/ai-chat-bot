@@ -1,38 +1,38 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import fetch from "node-fetch";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-dotenv.config();
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
+// ✅ This API is enabled for all Gemini keys
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
 app.post("/api/openai", async (req, res) => {
-  const { message } = req.body;
-
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.VITE_OPENAI_API_KEY}`, // secure
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: message }],
-        max_tokens: 500,
-      }),
-    });
+    const { message } = req.body;
 
-    const data = await response.json();
-    res.json(data);
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
+    const result = await model.generateContent(message);
+    const text = result.response.text();
+
+    res.json({ text });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Something went wrong with OpenAI API" });
+    console.error("GEMINI ERROR:", err);
+    res.status(500).json({
+      error: "Gemini request failed",
+      details: err.message,
+    });
   }
 });
 
-const PORT = process.env.PORT || 5178;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const PORT = 5178;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});

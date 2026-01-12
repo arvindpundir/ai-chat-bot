@@ -59,15 +59,20 @@ const ChatBotApp = ({ onGoBack, chats, setChats, activeChat, setActiveChat, onNe
       localStorage.setItem('chats', JSON.stringify(updatedChats))
       setIsTyping(true)
 
-      const response = await fetch("/api/openai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: inputValue }),
-      });
+     const response = await fetch("http://localhost:5178/api/openai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: inputValue }),
+    });
 
-      const data = await response.json();
-      const chatResponse = data.choices[0].message.content.trim();
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Server error");
+    }
+
+    const data = await response.json();
+    const chatResponse = data.text.trim();
 
       const newResponse = {
         type: 'response',
